@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -9,12 +10,13 @@ using Random = UnityEngine.Random;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using WebSocketSharp;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
     public static Launcher Instance;
-    public bool IsConnectedToLobby { get; private set; }
+    [SerializeField] public bool isAlreadyInMainMenu;
 
     [SerializeField] private TMP_InputField roomNameInput;
     [SerializeField] private TMP_Text roomName;
@@ -27,6 +29,8 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject playerItemPrefab;
 
     [SerializeField] private GameObject myPlayerManagerPrefab;
+
+    private Dictionary<string, RoomInfo> _roomList;
     
     private void Awake()
     {
@@ -35,8 +39,9 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        IsConnectedToLobby = false;
+        isAlreadyInMainMenu = false;
         MenuManager.Instance.OpenMenuName("HomeScreen");
+        _roomList = new Dictionary<string, RoomInfo>();
     }
 
     public void ConnectToPhotonServer()
@@ -52,16 +57,24 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
-        if (PhotonNetwork.NickName.IsNullOrEmpty())
+        if (!isAlreadyInMainMenu)
         {
             PhotonNetwork.NickName = "player" + Random.Range(0, 1000).ToString("0000");
-        }
-        if (!IsConnectedToLobby)
-        {
             MenuManager.Instance.CloseMenuName("HomeScreen");
-            IsConnectedToLobby = true;
+            isAlreadyInMainMenu = true;
         }
         Debug.Log("Connected to Lobby. You are " + PhotonNetwork.NickName);
+        _roomList.Clear();
+    }
+
+    public override void OnLeftLobby()
+    {
+        _roomList.Clear();
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        _roomList.Clear();
     }
 
     public void CreateRoom()
@@ -125,24 +138,63 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
+        ClearRoomList();
+        UpdateRoomList(roomList);
+        UpdateRoomListView();
+    }
+
+    private void UpdateRoomListView()
+    {
+        foreach (RoomInfo roomInfo in _roomList.Values)
+        {
+            Instantiate(roomItemPrefab,roomListContent).GetComponent<RoomListItem>().SetUp(roomInfo);
+        }
+    }
+
+    private void UpdateRoomList(List<RoomInfo> roomInfos)
+    {
+        foreach (RoomInfo roomInfo in roomInfos)
+        {
+            if (!roomInfo.IsOpen || !roomInfo.IsVisible || roomInfo.RemovedFromList)
+            {
+                if (_roomList.ContainsKey(roomInfo.Name))
+                {
+                    _roomList.Remove(roomInfo.Name);
+                }
+                continue;
+            }
+            
+            if (_roomList.ContainsKey(roomInfo.Name))
+            {
+                _roomList[roomInfo.Name] = roomInfo;
+            }
+            else
+            {
+                _roomList.Add(roomInfo.Name, roomInfo);
+            }
+        }
+        
+    }
+
+    private void ClearRoomList()
+    {
         foreach (Transform transformRoomList in roomListContent)
         {
             Destroy(transformRoomList.gameObject);
-        }
-
-        for (int i = 0; i < roomList.Count; i++)
-        {
-            if (roomList[i].RemovedFromList)
-            {
-                continue;
-            }
-            Instantiate(roomItemPrefab,roomListContent).GetComponent<RoomListItem>().SetUp(roomList[i]);
         }
     }
 
     public void ChangeNickName()
     {
-        PhotonNetwork.NickName = nickNameInput.text;
+        if (string.IsNullOrEmpty(nickNameInput.text))
+        {
+            PhotonNetwork.NickName = nickNameInput.text;
+        }
         Debug.Log(PhotonNetwork.NickName);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

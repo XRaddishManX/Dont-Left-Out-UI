@@ -16,7 +16,7 @@ public class PlayerListItem : MonoBehaviourPunCallbacks
         playerNickName.text = player.NickName;
     }
 
-    /*public override void OnPlayerLeftRoom(Player otherPlayer)
+    public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         if (_player == otherPlayer)
         {
@@ -24,8 +24,8 @@ public class PlayerListItem : MonoBehaviourPunCallbacks
         }
     }
 
-    /*public override void OnLeftRoom()
+    public override void OnLeftRoom()
     {
         Destroy(gameObject);
-    }*/
+    }
 }

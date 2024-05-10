@@ -39,7 +39,7 @@ public class MyPlayerManager : MonoBehaviour
 
     private Vector3 CreateRandomPositionSpawn()
     {
-        var randomPositionX = Random.Range(-240, -150);
+        var randomPositionX = Random.Range(-225, -175);
         var randomPositionZ = Random.Range(-20, 20);
         Vector3 randomPosition = new Vector3(randomPositionX, 0.5f, randomPositionZ);
         return randomPosition;

@@ -24,9 +24,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         _isAlreadyInMainMenu = false;
     }
 
-    private void Update()
+    public override void OnJoinedLobby()
     {
-        if (Launcher.Instance.IsConnectedToLobby && !_isAlreadyInMainMenu)
+        if (!_isAlreadyInMainMenu)
         {
             StartGameMenu();
             _isAlreadyInMainMenu = true;
