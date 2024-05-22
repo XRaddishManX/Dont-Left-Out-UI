@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -18,7 +17,7 @@ public class CameraController : MonoBehaviour
     private void Awake()
    {
       _camera = GetComponent<Camera>();
-      _MovementController = GetComponent<MoveCamController>();
+      _MovementController = GetComponent<MoveCamController>(); 
    }
 
     public void SetCameraTopDownView()
@@ -67,7 +66,7 @@ public class CameraController : MonoBehaviour
    
    public void MoveCameraToMenuScenario()
    {
-      transform.position = new Vector3(0, 46, 0);
+        transform.position = new Vector3(0, 46, 0);
    }
 
 }
