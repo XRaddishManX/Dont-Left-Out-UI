@@ -6,7 +6,7 @@ using UnityEngine;
 public class DeathZone : MonoBehaviour
 {
     private bool isAlive = true;
-    public GameObject Player;
+    //public GameObject Player;
 
     private float _TimeDeathCounter;
     public float _TimeThreshold = 5f;
@@ -22,7 +22,7 @@ public class DeathZone : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Jugador"))
+        if (other.CompareTag("Player"))
         {
             isAlive = false;
             Debug.Log("El jugador esta en peligro");

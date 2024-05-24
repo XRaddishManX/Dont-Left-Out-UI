@@ -44,7 +44,6 @@ public class MovingCamera : MonoBehaviour
         Vector3 direction = (TargetPosition - transform.position).normalized;
         transform.position += direction * MoveSpeed * Time.deltaTime;
 
-        // Verificar si el objeto ha alcanzado la posición objetivo
         if (Vector3.Distance(transform.position, TargetPosition) < 0.1f)
         {
             SetRandomTargetPosition();
